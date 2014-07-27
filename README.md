@@ -1,4 +1,4 @@
 Rabu-shiroi-gohan-matsuri
 =========================
-
-Local School Idol Festival
+ラブ白いご飯祭り
+Local School Idol Festival 

@@ -38,17 +38,18 @@ var proxy = http.createServer(function (req, res)
     console.log(req.url);
     console.log(req.headers);
     
-    if(req.url.indexOf('login') != -1 || req.url.indexOf('authkey'))
+    if(req.url.indexOf('login') != -1 || req.url.indexOf('authkey') != -1)
     {
         cacheEnabled = false;
     }
 
     //check of the request is cached
-    if(!config.noChangeGirls && dataCache[req.url] && cacheEnabled)
+    if(!config.noChangeGirls && req.url.indexOf('live/play') != -1)//!config.noChangeGirls && dataCache[req.url] && cacheEnabled)
     {
         //give the chached response
         console.log('giving cached response...');
         var cachedResponse = dataCache[req.url];
+        console.log(cachedResponse.headers)
 
         if(authorize)
         {
