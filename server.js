@@ -3,9 +3,13 @@
 var http = require('http');
 var zlib = require('zlib');
 var fs = require('fs');
+var config = require('./config');
 
 var dataCache = {};
 // Create the proxy
+
+var authorize;
+var cacheEnabled = false;
 
 var proxy = http.createServer(function (req, res)
 {
@@ -33,13 +37,39 @@ var proxy = http.createServer(function (req, res)
     console.log(req.method);
     console.log(req.url);
     console.log(req.headers);
+    
+    if(req.url.indexOf('login') != -1 || req.url.indexOf('authkey'))
+    {
+        cacheEnabled = false;
+    }
 
     //check of the request is cached
-    if(dataCache[req.url])
+    if(!config.noChangeGirls && dataCache[req.url] && cacheEnabled)
     {
         //give the chached response
         console.log('giving cached response...');
         var cachedResponse = dataCache[req.url];
+
+        if(authorize)
+        {
+            cachedResponse.headers.authorize  = authorize;
+            //TODO FAX THIS LATORG WILL NOT WORK 4 2 DAGITS
+            var index = req.headers.authorize.indexOf('nonce=');
+            var nonce = req.headers.authorize.substring(index + 6, index + 7);
+            var indexnew = authorize.indexOf('nonce=');
+            var noncenew = authorize.substring(indexnew + 6, indexnew + 7);
+            
+            
+            var index = req.headers.authorize.indexOf('timeStamp=');
+            var ts = req.headers.authorize.substring(index + 10, index + 20);
+            var indexnew = authorize.indexOf('requestTimeStamp=');
+            var tsnew = authorize.substring(indexnew + 17, indexnew + 27);
+            console.log(ts);
+            console.log(tsnew);
+            cachedResponse.headers.authorize = authorize.replace('requestTimeStamp=' + tsnew, 'requestTimeStamp=' + ts);
+            //cachedResponse.headers.authorize = authorize.replace('nonce=' + noncenew, 'nonce=' + nonce).replace('requestTimeStamp=' + tsnew, 'requestTimeStamp=' + ts);
+        }
+        console.log(cachedResponse.headers)
         res.writeHead(cachedResponse.statusCode, cachedResponse.headers);
         for(var i = 0; i < cachedResponse.chunks.length; i++)
         {
@@ -47,6 +77,10 @@ var proxy = http.createServer(function (req, res)
             res.write(new Buffer(cachedResponse.chunks[i], 'base64'));
         }
         res.end();
+    }
+    if(req.url.indexOf('lbonus') != -1)
+    {
+        cacheEnabled = true;
     }
 
     var proxy = http.createClient(80, req.headers['host']);
@@ -90,6 +124,10 @@ var proxy = http.createServer(function (req, res)
         //log the things
         console.log(proxyResponse.statusCode);
         console.log(proxyResponse.headers);
+        
+        console.log('updating auth token');
+        authorize = proxyResponse.headers.authorize;
+
         //write the response to the client
         res.writeHead(proxyResponse.statusCode, proxyResponse.headers);
     });
