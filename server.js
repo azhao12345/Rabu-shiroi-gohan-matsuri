@@ -16,8 +16,14 @@ var proxy = http.createServer(function (req, res)
     console.log('connection recieved');
     if(req.url.indexOf('webview.php') != -1)
     {
-        res.write('HELLO WORLD FROM THE LOCAL FESTIVAL');
+        res.write('<h1>HELLO WORLD FROM THE LOCAL FESTIVAL</h1><br/><img src="/image.gif"></img>');
         res.end();
+        return;
+    }
+    if(req.url.indexOf('.gif') != -1)
+    {
+        var stream = fs.createReadStream('image.gif');
+        stream.pipe(res);
         return;
     }
     if(req.url.indexOf('saveData') != -1)
