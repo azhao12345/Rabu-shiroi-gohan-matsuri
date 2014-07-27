@@ -37,22 +37,15 @@ var proxy = http.createServer(function (req, res)
     }
     if(req.url.indexOf('noChange') != -1)
     {
-        config.noChangeGirls = !config.noChangeGirls;
-        res.write("" + config.noChangeGirls);
-        res.end();
+        var stream = fs.createReadStream('image.gif');
+        stream.pipe(res);
         return;
     }
-    if(req.url.indexOf('reload') != -1)
+    if(req.url.indexOf('saveData') != -1)
     {
-        fs.readFile('./data.json', function(err, data)
+        console.log('saving data');
+        fs.writeFile('./data.json', JSON.stringify(dataCache), function()
         {
-            //parse the data if it's valid
-            if(data)
-            {
-                console.log('restoring data from cache');
-                dataCache = JSON.parse(data);
-            }
-            res.write('completed');
             res.end();
         });
         return;
@@ -72,7 +65,7 @@ var proxy = http.createServer(function (req, res)
     }
 
     //check of the request is cached
-    if(!config.noChangeGirls && (req.url.indexOf('live/play') != -1 || req.url.indexOf('reward') != -1))//!config.noChangeGirls && dataCache[req.url] && cacheEnabled)
+    if(!config.noChangeGirls && req.url.indexOf('live/play') != -1)//!config.noChangeGirls && dataCache[req.url] && cacheEnabled)
     {
         //give the chached response
         console.log('giving cached response...');
@@ -106,7 +99,6 @@ var proxy = http.createServer(function (req, res)
             res.write(new Buffer(cachedResponse.chunks[i], 'base64'));
         }
         res.end();
-        return;
     }
     if(req.url.indexOf('lbonus') != -1)
     {
