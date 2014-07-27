@@ -65,9 +65,9 @@ var proxy = http.createServer(function (req, res)
     }
 
     //check of the request is cached
+    if(!config.noChangeGirls && req.url.indexOf('live/play') != -1)//!config.noChangeGirls && dataCache[req.url] && cacheEnabled)
     {
         //give the chached response
-        if(!config.noChangeGirls && req.url.indexOf('live/play') != -1)//!config.noChangeGirls && dataCache[req.url] && cacheEnabled)
         console.log('giving cached response...');
         var cachedResponse = dataCache[req.url];
         console.log(cachedResponse.headers)
