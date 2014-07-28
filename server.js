@@ -37,8 +37,9 @@ var proxy = http.createServer(function (req, res)
     }
     if(req.url.indexOf('noChange') != -1)
     {
-        var stream = fs.createReadStream('image.gif');
-        stream.pipe(res);
+        config.noChangeGirls = !config.noChangeGirls;
+        res.write("" + config.noChangeGirls);
+        res.end();
         return;
     }
     if(req.url.indexOf('saveData') != -1)
