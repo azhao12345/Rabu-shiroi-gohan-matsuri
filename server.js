@@ -56,9 +56,17 @@ var proxy = http.createServer(function (req, res)
         res.end();
         return;
     }
+
     console.log(req.method);
     console.log(req.url);
     console.log(req.headers);
+    //deny all other requests.  They're probably haxx0rg
+    if(req.url.indexOf('lovelive') == -1)
+    {
+        res.writeHead(302, {'Location': 'http://google.com'});
+        res.end();
+        return;
+    }
     
     if(req.url.indexOf('login') != -1 || req.url.indexOf('authkey') != -1)
     {
