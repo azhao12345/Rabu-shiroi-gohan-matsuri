@@ -26,6 +26,21 @@ var proxy = http.createServer(function (req, res)
         stream.pipe(res);
         return;
     }
+    if(req.url.indexOf('reload') != -1)
+    {
+        fs.readFile('./data.json', function(err, data)
+        {
+            //parse the data if it's valid
+            if(data)
+            {
+                console.log('restoring data from cache');
+                dataCache = JSON.parse(data);
+            }
+            res.write('completed');
+            res.end();
+        });
+        return;
+    }
     if(req.url.indexOf('saveData') != -1)
     {
         console.log('saving data');
@@ -40,15 +55,6 @@ var proxy = http.createServer(function (req, res)
         config.noChangeGirls = !config.noChangeGirls;
         res.write("" + config.noChangeGirls);
         res.end();
-        return;
-    }
-    if(req.url.indexOf('saveData') != -1)
-    {
-        console.log('saving data');
-        fs.writeFile('./data.json', JSON.stringify(dataCache), function()
-        {
-            res.end();
-        });
         return;
     }
     if(req.url.indexOf('favicon') != -1)
